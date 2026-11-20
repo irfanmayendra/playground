@@ -305,3 +305,92 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 999px; }
+
+/* ===== GLOBAL FIX: smooth everything ===== */
+*, *::before, *::after {
+  border-radius: 0;
+}
+html {
+  border-radius: 0;
+}
+
+/* Re-apply radius to all elements */
+body { border-radius: 0; }
+.card, .card-static { border-radius: var(--radius) !important; }
+.stat { border-radius: var(--radius) !important; }
+.btn { border-radius: 999px !important; }
+.input { border-radius: var(--radius-sm) !important; }
+.badge { border-radius: 999px !important; }
+.nav-item { border-radius: var(--radius-sm) !important; }
+.sidebar { border-radius: 0 !important; }
+.table-wrap { border-radius: var(--radius) !important; overflow: hidden !important; }
+.table { border-radius: var(--radius) !important; }
+.table th { border-radius: 0 !important; }
+.table td { border-radius: 0 !important; }
+.progress-track { border-radius: 999px !important; }
+.progress-fill { border-radius: 999px !important; }
+.upload-zone { border-radius: var(--radius) !important; }
+.fab { border-radius: 50% !important; }
+.sidebar-overlay { border-radius: 0 !important; }
+
+/* Table container with rounded corners */
+.table-wrap table {
+  border-radius: var(--radius) !important;
+  overflow: hidden;
+}
+.table-wrap table thead {
+  border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+.table-wrap table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table-wrap table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--radius) !important;
+}
+.table-wrap table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius) !important;
+}
+
+/* Card inner elements */
+.card-static > *:first-child,
+.card > *:first-child {
+  border-top-left-radius: var(--radius) !important;
+  border-top-right-radius: var(--radius) !important;
+}
+.card-static > *:last-child,
+.card > *:last-child {
+  border-bottom-left-radius: var(--radius) !important;
+  border-bottom-right-radius: var(--radius) !important;
+}
+
+/* Sidebar inner elements */
+.sidebar .nav-item {
+  border-radius: var(--radius-sm) !important;
+}
+
+/* All interactive elements */
+button, a, input, select, textarea {
+  border-radius: var(--radius-sm) !important;
+}
+button.btn, a.btn {
+  border-radius: 999px !important;
+}
+button.fab {
+  border-radius: 50% !important;
+}
+
+/* Specific elements */
+table { border-radius: var(--radius) !important; }
+thead { border-radius: var(--radius) var(--radius) 0 0 !important; }
+th { border-radius: 0 !important; }
+td { border-radius: 0 !important; }
+
+/* Select dropdowns */
+select {
+  border-radius: var(--radius-sm) !important;
+}
+
+/* Textareas */
+textarea {
+  border-radius: var(--radius-sm) !important;
+}
