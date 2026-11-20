@@ -153,4 +153,34 @@ laporan.post('/:id/komentar', async (c) => {
   return c.json({ data, message: 'Komentar berhasil ditambahkan' }, 201);
 });
 
+// POST /api/laporan/:id/lampiran — Upload file
+laporan.post('/:id/lampiran', async (c) => {
+  const id = c.req.param('id');
+  const userId = c.get('userId');
+  const email = c.get('userEmail');
+
+  try {
+    const body = await c.req.parseBody();
+    const file = body['file'] as File;
+    
+    if (!file) {
+      return c.json({ error: 'Validation', message: 'File wajib diupload' }, 400);
+    }
+
+    // Save file info to DB (in production, upload to S3)
+    const { sql } = await import('../lib/db.js');
+    const user = await getUserByEmail(email);
+    
+    const result = await sql`
+      INSERT INTO lampiran (laporan_id, filename, s3_url, mime_type, size_bytes, uploaded_by)
+      VALUES (${id}, ${file.name}, ${'local://' + file.name}, ${file.type}, ${file.size}, ${user?.id || userId})
+      RETURNING *
+    `;
+
+    return c.json({ data: result[0], message: 'File berhasil diupload' }, 201);
+  } catch (err) {
+    return c.json({ error: 'Upload failed', message: String(err) }, 500);
+  }
+});
+
 export default laporan;

@@ -123,7 +123,23 @@ export async function getLaporanById(id: string) {
     LEFT JOIN users p ON l.petugas_id = p.id
     WHERE l.id = ${id}
   `;
-  return result[0] || null;
+  if (!result[0]) return null;
+
+  // Get komentar
+  const komentar = await sql`
+    SELECT id, user_nama, user_role, isi, is_internal, created_at
+    FROM komentar WHERE laporan_id = ${id}
+    ORDER BY created_at ASC
+  `;
+
+  // Get lampiran
+  const lampiran = await sql`
+    SELECT id, filename, s3_url, mime_type, size_bytes, uploaded_by, created_at
+    FROM lampiran WHERE laporan_id = ${id}
+    ORDER BY created_at ASC
+  `;
+
+  return { ...result[0], komentar, lampiran };
 }
 
 export async function createLaporan(data: { judul: string; deskripsi: string; kategori_id: string; pelapor_id: string; instansi_id: string; priority?: string; lokasi?: string }) {
