@@ -1,30 +1,34 @@
 import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import {
+  SquaresFour, Buildings, Bank, ListChecks, PlusCircle, Users, ClipboardText,
+  SignOut, List, Tray, User, ArrowRight, X, ListBullets,
+} from '@phosphor-icons/react';
 
-const ROLE_MENUS: Record<string, { label: string; path: string; icon: string }[]> = {
+const ROLE_MENUS: Record<string, { label: string; path: string; icon: React.ReactNode }[]> = {
   platform_superadmin: [
-    { label: 'Dashboard', path: '/dashboard', icon: '📊' },
-    { label: 'Tenant Management', path: '/tenants', icon: '🏢' },
-    { label: 'Instansi', path: '/instansi', icon: '🏛️' },
-    { label: 'Semua Laporan', path: '/laporan', icon: '📝' },
-    { label: 'Buat Laporan', path: '/laporan/baru', icon: '➕' },
-    { label: 'Users', path: '/users', icon: '👥' },
-    { label: 'Audit Log', path: '/audit', icon: '📋' },
+    { label: 'Dashboard', path: '/dashboard', icon: <SquaresFour size={20} /> },
+    { label: 'Tenant Management', path: '/tenants', icon: <Buildings size={20} /> },
+    { label: 'Instansi', path: '/instansi', icon: <Bank size={20} /> },
+    { label: 'Semua Laporan', path: '/laporan', icon: <ListChecks size={20} /> },
+    { label: 'Buat Laporan', path: '/laporan/baru', icon: <PlusCircle size={20} /> },
+    { label: 'Users', path: '/users', icon: <Users size={20} /> },
+    { label: 'Audit Log', path: '/audit', icon: <ClipboardText size={20} /> },
   ],
   tenant_admin: [
-    { label: 'Dashboard', path: '/dashboard', icon: '📊' },
-    { label: 'Laporan', path: '/laporan', icon: '📝' },
-    { label: 'Buat Laporan', path: '/laporan/baru', icon: '➕' },
+    { label: 'Dashboard', path: '/dashboard', icon: <SquaresFour size={20} /> },
+    { label: 'Laporan', path: '/laporan', icon: <ListChecks size={20} /> },
+    { label: 'Buat Laporan', path: '/laporan/baru', icon: <PlusCircle size={20} /> },
   ],
   tenant_staff: [
-    { label: 'Dashboard', path: '/dashboard', icon: '📊' },
-    { label: 'Laporan Masuk', path: '/laporan', icon: '📥' },
-    { label: 'Semua Laporan', path: '/laporan', icon: '📝' },
+    { label: 'Dashboard', path: '/dashboard', icon: <SquaresFour size={20} /> },
+    { label: 'Laporan Masuk', path: '/laporan', icon: <Tray size={20} /> },
+    { label: 'Semua Laporan', path: '/laporan', icon: <ListChecks size={20} /> },
   ],
   tenant_user: [
-    { label: 'Dashboard', path: '/dashboard', icon: '📊' },
-    { label: 'Buat Laporan', path: '/laporan/baru', icon: '➕' },
-    { label: 'Laporan Saya', path: '/laporan', icon: '📝' },
+    { label: 'Dashboard', path: '/dashboard', icon: <SquaresFour size={20} /> },
+    { label: 'Buat Laporan', path: '/laporan/baru', icon: <PlusCircle size={20} /> },
+    { label: 'Laporan Saya', path: '/laporan', icon: <ListChecks size={20} /> },
   ],
 };
 
@@ -60,10 +64,13 @@ export default function Layout() {
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''} flex flex-col`} style={{ width: 260, minWidth: 260 }}>
+        {/* Logo */}
         <div className="p-6 border-b" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 flex items-center justify-center text-white text-xl font-bold shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #0071E3, #5856D6)', borderRadius: '14px' }}>📋</div>
+            <div className="w-11 h-11 flex items-center justify-center text-white shadow-lg"
+              style={{ background: 'linear-gradient(135deg, #0071E3, #5856D6)', borderRadius: '14px' }}>
+              <ListBullets size={22} weight="bold" />
+            </div>
             <div>
               <h1 className="text-lg font-bold">Pengaduan</h1>
               <p className="text-xs" style={{ color: 'var(--text2)' }}>Multi-Instansi</p>
@@ -71,11 +78,12 @@ export default function Layout() {
           </div>
         </div>
 
+        {/* User */}
         <div className="px-4 py-4 border-b" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
               style={{ background: 'linear-gradient(135deg, #0071E3, #5856D6)' }}>
-              {(user.name || 'U').charAt(0).toUpperCase()}
+              <User size={18} weight="bold" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold truncate">{user.name || user.email}</div>
@@ -86,19 +94,22 @@ export default function Layout() {
           </div>
         </div>
 
+        {/* Nav */}
         <nav className="flex-1 px-3 py-4 overflow-y-auto">
           <div className="text-xs font-semibold uppercase tracking-wider px-3 mb-3" style={{ color: '#C0C0C4' }}>Menu</div>
           {menus.map((m) => (
             <NavLink key={m.path} to={m.path} className={({ isActive }) => `nav-item mb-1 ${isActive ? 'active' : ''}`}>
-              <span className="text-lg">{m.icon}</span>
+              {m.icon}
               <span>{m.label}</span>
             </NavLink>
           ))}
         </nav>
 
+        {/* Logout */}
         <div className="p-4 border-t" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
           <button onClick={() => { localStorage.clear(); navigate('/login'); }} className="nav-item w-full text-left">
-            <span className="text-lg">🚪</span><span>Keluar</span>
+            <SignOut size={20} />
+            <span>Keluar</span>
           </button>
         </div>
       </aside>
@@ -111,16 +122,16 @@ export default function Layout() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-gray-100">
-                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <List size={22} />
               </button>
               <div>
-                <h1 className="text-base font-bold">📋 Pengaduan</h1>
+                <h1 className="text-base font-bold">Pengaduan</h1>
                 <p className="text-xs" style={{ color: 'var(--text2)' }}>{roleLabel}</p>
               </div>
             </div>
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm"
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white"
               style={{ background: 'linear-gradient(135deg, #0071E3, #5856D6)' }}>
-              {(user.name || 'U').charAt(0).toUpperCase()}
+              <User size={16} weight="bold" />
             </div>
           </div>
         </div>
@@ -130,7 +141,10 @@ export default function Layout() {
         </div>
       </main>
 
-      <button className="fab" onClick={() => navigate('/laporan/baru')}>➕</button>
+      {/* FAB */}
+      <button className="fab" onClick={() => navigate('/laporan/baru')}>
+        <PlusCircle size={28} weight="bold" />
+      </button>
     </div>
   );
 }

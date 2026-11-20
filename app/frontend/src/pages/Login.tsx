@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ListBullets, Envelope, Lock, ArrowRight, ShieldCheck } from '@phosphor-icons/react';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -39,15 +40,20 @@ export default function Login() {
       background: 'linear-gradient(180deg, #F5F5F7 0%, #E8E8ED 100%)',
     }}>
       <div className="w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-10 anim-up">
-          <div className="w-24 h-24 mx-auto mb-6 flex items-center justify-center text-5xl shadow-2xl" style={{
-            background: 'linear-gradient(135deg, #0071E3, #5856D6)',
-            borderRadius: '28px',
-          }}>📋</div>
+          <div className="w-24 h-24 mx-auto mb-6 flex items-center justify-center shadow-2xl"
+            style={{
+              background: 'linear-gradient(135deg, #0071E3, #5856D6)',
+              borderRadius: '28px',
+            }}>
+            <ListBullets size={44} weight="bold" color="white" />
+          </div>
           <h1 className="text-4xl font-bold tracking-tight mb-3">Layanan Pengaduan</h1>
           <p className="text-lg" style={{ color: 'var(--text2)' }}>Multi-Instansi Pemerintah</p>
         </div>
 
+        {/* Login Card */}
         <div className="card-static p-10 anim-scale" style={{ borderRadius: '28px' }}>
           <h2 className="text-2xl font-bold mb-8 tracking-tight">Masuk</h2>
 
@@ -60,14 +66,44 @@ export default function Login() {
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="label">Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" placeholder="email@example.com" required />
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text2)' }}>
+                  <Envelope size={20} />
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input"
+                  style={{ paddingLeft: '48px' }}
+                  placeholder="email@example.com"
+                  required
+                />
+              </div>
             </div>
+
             <div>
               <label className="label">Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input" placeholder="••••••••" required />
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text2)' }}>
+                  <Lock size={20} />
+                </div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input"
+                  style={{ paddingLeft: '48px' }}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
             </div>
+
             <button type="submit" disabled={loading} className="btn btn-primary w-full" style={{ marginTop: '8px', minHeight: '52px', fontSize: '16px' }}>
-              {loading ? 'Memproses...' : 'Masuk'}
+              {loading ? 'Memproses...' : (
+                <>Masuk <ArrowRight size={20} /></>
+              )}
             </button>
           </form>
 
@@ -78,8 +114,12 @@ export default function Login() {
           </div>
         </div>
 
+        {/* Footer */}
         <div className="text-center mt-8 anim-fade">
-          <p className="text-sm" style={{ color: '#C0C0C4' }}>🔒 Sistem Pengaduan Multi-Instansi</p>
+          <div className="flex items-center justify-center gap-2 text-sm" style={{ color: '#C0C0C4' }}>
+            <ShieldCheck size={16} />
+            <span>Sistem Pengaduan Multi-Instansi</span>
+          </div>
         </div>
       </div>
     </div>

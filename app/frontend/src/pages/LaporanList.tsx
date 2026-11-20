@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { PlusCircle, ArrowLeft } from '@phosphor-icons/react';
 import { api } from '../lib/api';
 
 const BADGES: Record<string, string> = {
@@ -19,7 +20,9 @@ export default function LaporanList() {
           <p className="text-sm font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--text2)' }}>Pengaduan</p>
           <h2 className="text-3xl font-bold tracking-tight">Tiket Pengaduan</h2>
         </div>
-        <Link to="/laporan/baru" className="btn btn-primary">➕ Buat Laporan</Link>
+        <Link to="/laporan/baru" className="btn btn-primary">
+          <PlusCircle size={20} /> Buat Laporan
+        </Link>
       </div>
 
       {isLoading ? (
