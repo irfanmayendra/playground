@@ -1,4 +1,5 @@
 // Main API Entry Point — Hono
+import 'dotenv/config';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
@@ -38,15 +39,9 @@ app.route('/api/laporan', laporan);
 
 // Dashboard
 app.get('/api/dashboard/overview', async (c) => {
-  return c.json({
-    data: {
-      total_laporan: 0,
-      status_breakdown: { masuk: 0, verifikasi: 0, proses: 0, selesai: 0, ditutup: 0 },
-      sla_compliance: 100,
-      avg_response_time: '0h',
-    },
-    message: 'Dashboard overview'
-  });
+  const { getDashboardOverview } = await import('./lib/db.js');
+  const data = await getDashboardOverview();
+  return c.json({ data, message: 'Dashboard overview' });
 });
 
 // Health check

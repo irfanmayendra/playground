@@ -171,9 +171,12 @@ export async function getKomentar(laporanId: string) {
 }
 
 export async function createKomentar(data: { laporan_id: string; user_id: string; user_nama: string; user_role: string; isi: string; is_internal?: boolean }) {
+  const userResult = await sql`SELECT id FROM users WHERE keycloak_id = ${data.user_id}`;
+  const userId = userResult[0]?.id || data.user_id;
+
   const result = await sql`
     INSERT INTO komentar (laporan_id, user_id, user_nama, user_role, isi, is_internal)
-    VALUES (${data.laporan_id}, ${data.user_id}, ${data.user_nama}, ${data.user_role}, ${data.isi}, ${data.is_internal || false})
+    VALUES (${data.laporan_id}, ${userId}, ${data.user_nama}, ${data.user_role}, ${data.isi}, ${data.is_internal || false})
     RETURNING *
   `;
   return result[0];
@@ -182,12 +185,13 @@ export async function createKomentar(data: { laporan_id: string; user_id: string
 // ========== DASHBOARD ==========
 export async function getDashboardOverview(instansiId?: string) {
   const where = instansiId ? sql`WHERE instansi_id = ${instansiId}` : sql``;
+  const whereWithAnd = instansiId ? sql`WHERE instansi_id = ${instansiId} AND` : sql`WHERE`;
 
   const statusCounts = await sql`SELECT status, COUNT(*) as count FROM laporan ${where} GROUP BY status`;
   const total = await sql`SELECT COUNT(*) as total FROM laporan ${where}`;
   const slaCompliance = await sql`
     SELECT COUNT(*) as compliant FROM laporan 
-    ${where ? sql`${where} AND` : sql`WHERE`} sla_deadline > NOW() OR status IN ('selesai', 'ditutup')
+    ${whereWithAnd} (sla_deadline > NOW() OR status IN ('selesai', 'ditutup'))
   `;
 
   return {
