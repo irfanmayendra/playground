@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #0066FF;
+  --primary-dark: #0052CC;
+  --success: #00C853;
+  --warning: #FF9800;
+  --danger: #F44336;
+  --bg: #F5F7FA;
+  --sidebar: #1E293B;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  margin: 0;
+}
+
+.sidebar {
+  background: var(--sidebar);
+  color: white;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-masuk { background: #E3F2FD; color: #1565C0; }
+.status-verifikasi { background: #FFF3E0; color: #E65100; }
+.status-proses { background: #F3E5F5; color: #7B1FA2; }
+.status-selesai { background: #E8F5E9; color: #2E7D32; }
+.status-ditutup { background: #ECEFF1; color: #455A64; }

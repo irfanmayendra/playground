@@ -8,6 +8,7 @@ import { auditMiddleware } from './middleware/audit.js';
 import { testConnection } from './lib/db.js';
 import instansi from './routes/instansi.js';
 import laporan from './routes/laporan.js';
+import auth from './routes/auth.js';
 
 // Type definitions for context variables
 type Variables = {
@@ -31,6 +32,7 @@ app.use('*', cors({
 app.use('*', auditMiddleware);
 
 // ============ Routes ============
+app.route('/api/auth', auth);
 app.route('/api/instansi', instansi);
 app.route('/api/laporan', laporan);
 

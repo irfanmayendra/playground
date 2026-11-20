@@ -2,8 +2,11 @@
 import * as postgresModule from 'postgres';
 const postgres = (postgresModule as any).default || postgresModule;
 
-const DATABASE_URL = process.env.DATABASE_URL || 
-  'postgresql://neondb_owner:npg_jeRVCvY8lBJ1@ep-proud-truth-bd2ecivx-pooler.c-8.us-east-2.aws.neon.tech/neondb?sslmode=require';
+const DATABASE_URL = process.env.DATABASE_URL;
+
+if (!DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
 
 export const sql = postgres(DATABASE_URL, {
   max: 10,
@@ -124,15 +127,12 @@ export async function getLaporanById(id: string) {
 }
 
 export async function createLaporan(data: { judul: string; deskripsi: string; kategori_id: string; pelapor_id: string; instansi_id: string; priority?: string; lokasi?: string }) {
-  // Look up user ID from keycloak_id
   const userResult = await sql`SELECT id FROM users WHERE keycloak_id = ${data.pelapor_id}`;
   const pelaporId = userResult[0]?.id || data.pelapor_id;
 
-  // Generate nomor tiket
   const tiketResult = await sql`SELECT generate_nomor_tiket(${data.instansi_id}::uuid) as nomor`;
   const nomorTiket = tiketResult[0].nomor;
 
-  // Calculate SLA deadline
   const kategori = await sql`SELECT sla_hours FROM kategori WHERE id = ${data.kategori_id}`;
   const slaHours = kategori[0]?.sla_hours || 72;
 
@@ -145,11 +145,9 @@ export async function createLaporan(data: { judul: string; deskripsi: string; ka
 }
 
 export async function updateLaporanStatus(id: string, status: string, changedBy: string, changedByNama: string, notes?: string) {
-  // Get current status
   const current = await sql`SELECT status FROM laporan WHERE id = ${id}`;
   const fromStatus = current[0]?.status;
 
-  // Update laporan
   const result = await sql`
     UPDATE laporan SET status = ${status}, updated_at = NOW(),
       ${status === 'selesai' ? sql`closed_at = NOW(),` : sql``}
@@ -159,7 +157,6 @@ export async function updateLaporanStatus(id: string, status: string, changedBy:
     RETURNING *
   `;
 
-  // Insert status history
   await sql`
     INSERT INTO status_history (laporan_id, from_status, to_status, changed_by, changed_by_nama, notes)
     VALUES (${id}, ${fromStatus}, ${status}, ${changedBy}, ${changedByNama}, ${notes || null})
@@ -170,11 +167,7 @@ export async function updateLaporanStatus(id: string, status: string, changedBy:
 
 // ========== KOMENTAR ==========
 export async function getKomentar(laporanId: string) {
-  return sql`
-    SELECT * FROM komentar 
-    WHERE laporan_id = ${laporanId} 
-    ORDER BY created_at ASC
-  `;
+  return sql`SELECT * FROM komentar WHERE laporan_id = ${laporanId} ORDER BY created_at ASC`;
 }
 
 export async function createKomentar(data: { laporan_id: string; user_id: string; user_nama: string; user_role: string; isi: string; is_internal?: boolean }) {
@@ -190,12 +183,8 @@ export async function createKomentar(data: { laporan_id: string; user_id: string
 export async function getDashboardOverview(instansiId?: string) {
   const where = instansiId ? sql`WHERE instansi_id = ${instansiId}` : sql``;
 
-  const statusCounts = await sql`
-    SELECT status, COUNT(*) as count FROM laporan ${where} GROUP BY status
-  `;
-
+  const statusCounts = await sql`SELECT status, COUNT(*) as count FROM laporan ${where} GROUP BY status`;
   const total = await sql`SELECT COUNT(*) as total FROM laporan ${where}`;
-
   const slaCompliance = await sql`
     SELECT COUNT(*) as compliant FROM laporan 
     ${where ? sql`${where} AND` : sql`WHERE`} sla_deadline > NOW() OR status IN ('selesai', 'ditutup')

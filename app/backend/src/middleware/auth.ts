@@ -2,7 +2,7 @@
 import { Context, Next } from 'hono';
 import { syncUserToDB } from '../lib/sync-user.js';
 
-const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'http://localhost:8080';
+const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'https://auth.lostinvirtual.com';
 const REALM = process.env.KEYCLOAK_REALM || 'pengaduan';
 
 interface JWTPayload {
