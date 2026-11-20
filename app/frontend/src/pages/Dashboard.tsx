@@ -2,13 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 
-const ROLE_DASHBOARDS: Record<string, string> = {
-  platform_superadmin: 'Platform Overview — Semua Instansi',
-  tenant_admin: 'Dashboard Instansi',
-  tenant_staff: 'Dashboard Petugas',
-  tenant_user: 'Dashboard Saya',
-};
-
 export default function Dashboard() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const role = user.role || 'tenant_user';
@@ -22,119 +15,128 @@ export default function Dashboard() {
   const breakdown = stats?.status_breakdown || {};
 
   return (
-    <div>
+    <div className="animate-apple-fade-up">
       {/* Header */}
-      <div className="mb-8">
-        <p className="text-sm text-gray-500 mb-1">{ROLE_DASHBOARDS[role]}</p>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-          Selamat datang, {user.name || 'User'} 👋
+      <div className="mb-10">
+        <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
+          Dashboard
+        </p>
+        <h2 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">
+          Halo, {user.name || 'User'} <span className="inline-block animate-apple-scale-in">👋</span>
         </h2>
+        <p className="text-gray-500 mt-2 text-lg">
+          Berikut ringkasan pengaduan hari ini
+        </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-        <div className="stat-card">
-          <div className="flex items-center justify-between">
+      {/* Bento Grid — Stats */}
+      <div className="bento-grid stagger-children mb-10">
+        <div className="stat-card bento-item">
+          <div className="flex items-start justify-between">
             <div>
-              <div className="stat-label">Total</div>
+              <div className="stat-label mb-2">Total</div>
               <div className="stat-number text-gray-900">{stats?.total_laporan || 0}</div>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-2xl">📊</div>
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-3xl">📊</div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="flex items-center justify-between">
+        <div className="stat-card bento-item">
+          <div className="flex items-start justify-between">
             <div>
-              <div className="stat-label">Masuk</div>
-              <div className="stat-number text-blue-600">{breakdown.masuk || 0}</div>
+              <div className="stat-label mb-2">Masuk</div>
+              <div className="stat-number" style={{ color: 'var(--apple-blue)' }}>{breakdown.masuk || 0}</div>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl">📥</div>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl" style={{ background: 'rgba(0,113,227,0.08)' }}>📥</div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="flex items-center justify-between">
+        <div className="stat-card bento-item">
+          <div className="flex items-start justify-between">
             <div>
-              <div className="stat-label">Diproses</div>
-              <div className="stat-number text-purple-600">{breakdown.proses || 0}</div>
+              <div className="stat-label mb-2">Diproses</div>
+              <div className="stat-number" style={{ color: 'var(--apple-purple)' }}>{breakdown.proses || 0}</div>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-2xl">⚙️</div>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl" style={{ background: 'rgba(175,82,222,0.08)' }}>⚙️</div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="flex items-center justify-between">
+        <div className="stat-card bento-item">
+          <div className="flex items-start justify-between">
             <div>
-              <div className="stat-label">Selesai</div>
-              <div className="stat-number text-green-600">{breakdown.selesai || 0}</div>
+              <div className="stat-label mb-2">Selesai</div>
+              <div className="stat-number" style={{ color: 'var(--apple-green)' }}>{breakdown.selesai || 0}</div>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-2xl">✅</div>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl" style={{ background: 'rgba(52,199,89,0.08)' }}>✅</div>
           </div>
         </div>
       </div>
 
-      {/* SLA + Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* SLA Compliance */}
-        <div className="card">
-          <div className="card-body">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">⏱️ SLA Compliance</h3>
-            <div className="flex items-center gap-4">
-              <div className="flex-1 bg-gray-200 rounded-full h-3">
+      {/* Bento Grid — Content */}
+      <div className="bento-grid stagger-children">
+        {/* SLA — wide card */}
+        <div className="apple-card-static bento-item bento-span-2 p-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">⏱️ SLA Compliance</h3>
+          <p className="text-gray-500 text-sm mb-6">Tingkat penyelesaian sesuai Service Level Agreement</p>
+          <div className="flex items-center gap-6">
+            <div className="flex-1">
+              <div className="apple-progress-track">
                 <div
-                  className="bg-gradient-to-r from-green-500 to-green-400 h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${stats?.sla_compliance || 0}%` }}
+                  className="apple-progress-fill"
+                  style={{
+                    width: `${stats?.sla_compliance || 0}%`,
+                    background: 'linear-gradient(90deg, #34C759, #30D158)',
+                  }}
                 />
               </div>
-              <span className="text-2xl font-bold text-green-600">{stats?.sla_compliance || 0}%</span>
             </div>
-            <p className="text-sm text-gray-500 mt-2">Laporan diselesaikan sesuai SLA</p>
+            <div className="text-5xl font-extrabold tracking-tight" style={{ color: 'var(--apple-green)' }}>
+              {stats?.sla_compliance || 0}%
+            </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="card">
-          <div className="card-body">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">⚡ Aksi Cepat</h3>
-            <div className="space-y-3">
-              <Link to="/laporan/baru" className="btn btn-primary w-full">
-                ➕ Buat Laporan Baru
+        <div className="apple-card-static bento-item bento-span-2 p-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-6">⚡ Aksi Cepat</h3>
+          <div className="space-y-3">
+            <Link to="/laporan/baru" className="apple-btn apple-btn-primary w-full">
+              ➕ Buat Laporan Baru
+            </Link>
+            <Link to="/laporan" className="apple-btn apple-btn-secondary w-full">
+              📝 Lihat Semua Laporan
+            </Link>
+            {role === 'platform_superadmin' && (
+              <Link to="/tenants" className="apple-btn apple-btn-ghost w-full">
+                🏢 Tenant Management
               </Link>
-              <Link to="/laporan" className="btn btn-outline w-full">
-                📝 Lihat Semua Laporan
-              </Link>
-              {role === 'platform_superadmin' && (
-                <Link to="/tenants" className="btn btn-ghost w-full">
-                  🏢 Tenant Management
-                </Link>
-              )}
-            </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Role-specific info */}
-      <div className="card">
-        <div className="card-body">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">ℹ️ Informasi</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-xl bg-blue-50">
-              <div className="text-2xl mb-2">🏛️</div>
-              <div className="font-semibold text-gray-900">5 Instansi</div>
-              <div className="text-sm text-gray-500">POLRI, DINKES, DINSOS, DISHUB, OMBUDSMAN</div>
-            </div>
-            <div className="p-4 rounded-xl bg-green-50">
-              <div className="text-2xl mb-2">💬</div>
-              <div className="font-semibold text-gray-900">Diskusi Real-time</div>
-              <div className="text-sm text-gray-500">Komunikasi pelapor ↔ petugas</div>
-            </div>
-            <div className="p-4 rounded-xl bg-purple-50">
-              <div className="text-2xl mb-2">📎</div>
-              <div className="font-semibold text-gray-900">Upload Bukti</div>
-              <div className="text-sm text-gray-500">Foto, video, dokumen pendukung</div>
-            </div>
-          </div>
+        {/* Info Cards */}
+        <div className="apple-card-static bento-item p-6">
+          <div className="text-4xl mb-4">🏛️</div>
+          <h4 className="font-bold text-gray-900 mb-1">5 Instansi</h4>
+          <p className="text-gray-500 text-sm">POLRI, DINKES, DINSOS, DISHUB, OMBUDSMAN</p>
+        </div>
+
+        <div className="apple-card-static bento-item p-6">
+          <div className="text-4xl mb-4">💬</div>
+          <h4 className="font-bold text-gray-900 mb-1">Diskusi</h4>
+          <p className="text-gray-500 text-sm">Komunikasi real-time pelapor ↔ petugas</p>
+        </div>
+
+        <div className="apple-card-static bento-item p-6">
+          <div className="text-4xl mb-4">📎</div>
+          <h4 className="font-bold text-gray-900 mb-1">Bukti</h4>
+          <p className="text-gray-500 text-sm">Upload foto, video, dokumen</p>
+        </div>
+
+        <div className="apple-card-static bento-item p-6">
+          <div className="text-4xl mb-4">📊</div>
+          <h4 className="font-bold text-gray-900 mb-1">Progress</h4>
+          <p className="text-gray-500 text-sm">Track status pengaduan real-time</p>
         </div>
       </div>
     </div>
