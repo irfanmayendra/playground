@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import ManageInstansi from './pages/ManageInstansi';
 import ManageUsers from './pages/ManageUsers';
 import AuditLog from './pages/AuditLog';
+import TenantManagement from './pages/TenantManagement';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="laporan/baru" element={<LaporanCreate />} />
         <Route path="laporan/:id" element={<LaporanDetail />} />
         <Route path="instansi" element={<ManageInstansi />} />
+        <Route path="tenants" element={<TenantManagement />} />
         <Route path="users" element={<ManageUsers />} />
         <Route path="audit" element={<AuditLog />} />
       </Route>

@@ -4,6 +4,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 const ROLE_MENUS: Record<string, { label: string; path: string; icon: string }[]> = {
   platform_superadmin: [
     { label: 'Dashboard', path: '/dashboard', icon: '📊' },
+    { label: 'Tenant Management', path: '/tenants', icon: '🏢' },
     { label: 'Instansi', path: '/instansi', icon: '🏛️' },
     { label: 'Semua Laporan', path: '/laporan', icon: '📝' },
     { label: 'Buat Laporan', path: '/laporan/baru', icon: '➕' },
