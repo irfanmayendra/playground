@@ -69,7 +69,7 @@ paths:
                   example: testuser@example.com
                 password:
                   type: string
-                  example: Test12345!
+                  example: '********'
       responses:
         '200':
           description: Login successful
