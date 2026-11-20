@@ -2,81 +2,93 @@
 
 **Fullstack Engineer | DevOps & CI/CD | Cybersecurity**
 
-## 🏛️ Featured Project: Layanan Pengaduan Multi-Instansi
+## 🏛️ Layanan Pengaduan & Penanganan Laporan Multi-Instansi
 
 **Multi-Tenant SaaS — Complaint & Report Management Platform**
 
-Sistem pengaduan publik multi-tenant yang menangani laporan dari masyarakat ke berbagai instansi pemerintah. Dilengkapi workflow SLA, Keycloak RBAC, audit trail, dan compliance PDPA.
-
 | Aspect | Detail |
 |--------|--------|
-| **Architecture** | Hybrid (Cloudflare serverless + VPS) |
-| **Auth** | Keycloak SSO + RBAC + MFA |
-| **Database** | PostgreSQL (Neon) — multi-tenant schema |
-| **Frontend** | React + Tailwind + shadcn/ui |
-| **Backend** | Node.js (Hono) + Cloudflare Workers |
-| **Storage** | S3 (lampiran/bukti) |
-| **Compliance** | PDPA, OWASP, ISO 27001 |
+| **Architecture** | Multi-tenant SaaS (5 instansi pemerintah) |
+| **Auth** | Keycloak SSO + RBAC (4 roles) + custom claims |
+| **Database** | PostgreSQL (Neon) — 8 tables, multi-tenant |
+| **Frontend** | React 18 + TypeScript + Tailwind CSS |
+| **Backend** | Node.js (Hono) + raw SQL |
+| **CI/CD** | GitHub Actions → Cloudflare Pages |
+| **Compliance** | OWASP, PDPA, audit trail |
 
-[→ Baca case study lengkap](/fullstack)
+### Live Demo
 
----
+- **Frontend**: `playground.lostinvirtual.com`
+- **Auth**: `auth.lostinvirtual.com` (Keycloak SSO)
+- **API Docs**: [OpenAPI Spec](docs/api/openapi.yaml)
 
-## 🎯 Focus Areas
+### Features
 
-| Section | Focus | Highlights |
-|---------|-------|-----------|
-| **[Fullstack](/fullstack)** | Multi-tenant SaaS | Keycloak RBAC, workflow SLA, PostgreSQL |
-| **[DevOps](/devops)** | Hybrid architecture | Cloudflare + VPS, CI/CD, Docker |
-| **[Cybersecurity](/cybersecurity)** | Security & compliance | OWASP, PDPA, CVSS, MITRE ATT&CK |
+- ✅ Multi-tenant (5 instansi pemerintah)
+- ✅ Keycloak SSO + RBAC (platform_superadmin, tenant_admin, tenant_staff, tenant_user)
+- ✅ Custom JWT claims (tenant_id, roles)
+- ✅ Laporan workflow (masuk → verifikasi → proses → selesai → ditutup)
+- ✅ SLA tracking + deadline otomatis
+- ✅ Nomor tiket auto-generate (`LP-2026-{KODE}-{SEQ}`)
+- ✅ Komentar (diskusi pelapor ↔ petugas)
+- ✅ Dashboard analytics + SLA compliance
+- ✅ Audit trail (compliance-ready)
+- ✅ Security headers + CORS
 
-## 📊 Quick Stats
-
-- **Multi-tenant SaaS** — 5 instansi, 5 roles, workflow SLA
-- **Hybrid architecture** — serverless + VPS (cost-optimized)
-- **Security-first** — OWASP, PDPA, encryption, RBAC
-- **CI/CD pipeline** — auto-deploy dari Git push
-
-## 🛠️ Tech Stack
-
-```
-Frontend:  React 18, Vite, Tailwind CSS, shadcn/ui
-Backend:   Node.js, Hono (edge), Drizzle ORM
-Database:  PostgreSQL 18 (Neon), multi-tenant schema
-Auth:      Keycloak 24 (SSO, RBAC, MFA)
-Storage:   S3-compatible (Neon)
-Hosting:   Cloudflare Pages + Workers, VPS (Keycloak)
-CI/CD:     GitHub Actions, Docker
-Testing:   Vitest, Playwright
-Security:  OWASP, CVSS v3.1, MITRE ATT&CK
-```
-
-## 🏗️ Architecture
+### Tech Stack
 
 ```
-Users → Cloudflare (DNS, SSL, WAF)
-         ├── Pages (React frontend) → Auto-deploy
-         ├── Workers (Hono API) → Edge compute
-         └── Tunnel → VPS (Keycloak auth)
-
-Database: Neon PostgreSQL (multi-tenant)
-Storage:  Neon S3 (lampiran/bukti)
+Frontend:  React 18 + TypeScript + Vite + Tailwind CSS
+Backend:   Node.js (Hono) + PostgreSQL (Neon)
+Auth:      Keycloak 24 (OIDC/OAuth2 + RBAC)
+Database:  Neon PostgreSQL (serverless)
+Hosting:   Cloudflare Pages + Workers
+CI/CD:     GitHub Actions
 ```
 
-## 📁 Structure
+## 📂 Portfolio
 
+| Section | Description |
+|---------|-------------|
+| [Fullstack](/fullstack) | Keycloak RBAC, multi-tenant DB, workflow SLA, React UI |
+| [DevOps](/devops) | Hybrid architecture, CI/CD, Docker, monitoring |
+| [Cybersecurity](/cybersecurity) | OWASP, PDPA, CVSS, MITRE ATT&CK, audit |
+
+## 📖 Documentation
+
+| Document | Link |
+|----------|------|
+| Architecture | [docs/architecture.md](docs/architecture.md) |
+| API Spec (OpenAPI) | [docs/api/openapi.yaml](docs/api/openapi.yaml) |
+| Deployment Guide | [docs/deployment.md](docs/deployment.md) |
+| Skills Matrix | [docs/skills-matrix.md](docs/skills-matrix.md) |
+| Certifications | [docs/certifications.md](docs/certifications.md) |
+
+## 🛠️ Local Development
+
+```bash
+# Backend
+cd app/backend
+cp .env.example .env  # Fill with your credentials
+npm install
+npx tsx src/index.ts  # → http://localhost:8787
+
+# Frontend
+cd app/frontend
+npm install
+npx vite  # → http://localhost:5173
 ```
-├── fullstack/        → Multi-tenant SaaS case study
-├── devops/           → Hybrid architecture & CI/CD
-├── cybersecurity/    → Security & compliance
-└── docs/             → Skills matrix, certifications
-```
 
-## 📫 Contact
+## 🔒 Security
 
-- **GitHub:** [@irfanmayendra](https://github.com/irfanmayendra)
-- **Email:** irfanmayendra@gmail.com
+| Layer | Implementation |
+|-------|---------------|
+| Authentication | Keycloak SSO (OIDC/OAuth2) |
+| Authorization | RBAC (4 roles) |
+| Data Protection | HTTPS (Cloudflare SSL) |
+| Audit | Full audit trail |
+| Headers | CSP, HSTS, X-Frame-Options |
 
----
+## 📧 Contact
 
-*Built with ❤️ and lots of ☕*
+**Irfan Mayendra** — [GitHub](https://github.com/irfanmayendra)

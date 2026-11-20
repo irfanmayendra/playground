@@ -1,0 +1,268 @@
+openapi: 3.0.3
+info:
+  title: Layanan Pengaduan Multi-Instansi API
+  description: Multi-Tenant SaaS — Complaint & Report Management Platform
+  version: 1.0.0
+  contact:
+    name: Irfan Mayendra
+    url: https://github.com/irfanmayendra/playground
+
+servers:
+  - url: http://localhost:8787
+    description: Local development
+  - url: https://api.playground.lostinvirtual.com
+    description: Production
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+    description: Authentication & user management
+  - name: Instansi
+    description: Tenant management
+  - name: Laporan
+    description: Complaint management
+  - name: Dashboard
+    description: Analytics & overview
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [Auth]
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: pengaduan-api
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /api/auth/login:
+    post:
+      summary: Login with email & password
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: testuser@example.com
+                password:
+                  type: string
+                  example: Test12345!
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  user:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      email: { type: string }
+                      name: { type: string }
+                      role: { type: string }
+        '401':
+          description: Invalid credentials
+
+  /api/auth/me:
+    get:
+      summary: Get current user info
+      tags: [Auth]
+      responses:
+        '200':
+          description: User info
+        '401':
+          description: Unauthorized
+
+  /api/instansi:
+    get:
+      summary: List all instansi
+      tags: [Instansi]
+      responses:
+        '200':
+          description: List of instansi
+    post:
+      summary: Create instansi (super_admin only)
+      tags: [Instansi]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nama, kode]
+              properties:
+                nama: { type: string }
+                kode: { type: string }
+                alamat: { type: string }
+                kontak_email: { type: string }
+                sla_hours: { type: integer }
+      responses:
+        '201':
+          description: Instansi created
+        '403':
+          description: Forbidden
+
+  /api/laporan:
+    get:
+      summary: List laporan with filters
+      tags: [Laporan]
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [masuk, verifikasi, proses, selesai, ditutup] }
+        - name: kategori_id
+          in: query
+          schema: { type: string }
+        - name: instansi_id
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: List of laporan with pagination
+    post:
+      summary: Create new laporan
+      tags: [Laporan]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [judul, deskripsi, kategori_id, instansi_id]
+              properties:
+                judul: { type: string }
+                deskripsi: { type: string }
+                kategori_id: { type: string }
+                instansi_id: { type: string }
+                priority: { type: string, enum: [low, medium, high, critical] }
+                lokasi: { type: string }
+      responses:
+        '201':
+          description: Laporan created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      nomor_tiket: { type: string, example: LP-2026-DINKES-00001 }
+                      judul: { type: string }
+                      status: { type: string }
+
+  /api/laporan/{id}:
+    get:
+      summary: Get laporan detail
+      tags: [Laporan]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Laporan detail
+        '404':
+          description: Not found
+
+  /api/laporan/{id}/status:
+    patch:
+      summary: Update laporan status (petugas/admin only)
+      tags: [Laporan]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [masuk, verifikasi, proses, selesai, ditutup] }
+                notes: { type: string }
+      responses:
+        '200':
+          description: Status updated
+        '403':
+          description: Forbidden (insufficient role)
+
+  /api/laporan/{id}/komentar:
+    post:
+      summary: Add comment to laporan
+      tags: [Laporan]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isi]
+              properties:
+                isi: { type: string }
+                is_internal: { type: boolean, default: false }
+      responses:
+        '201':
+          description: Comment added
+
+  /api/dashboard/overview:
+    get:
+      summary: Get dashboard overview
+      tags: [Dashboard]
+      responses:
+        '200':
+          description: Dashboard data
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
