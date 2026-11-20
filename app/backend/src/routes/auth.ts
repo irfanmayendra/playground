@@ -7,6 +7,16 @@ const CLIENT_ID = process.env.KEYCLOAK_CLIENT_ID || 'pengaduan-app';
 
 type Variables = { user: { sub: string; email: string }; userId: string; userEmail: string; userRole: string; };
 
+const VALID_ROLES = ['platform_superadmin', 'tenant_admin', 'tenant_staff', 'tenant_user', 'super_admin', 'instansi_admin', 'petugas', 'supervisor', 'masyarakat'];
+
+function detectRole(roles?: string[]): string {
+  if (!roles) return 'masyarakat';
+  for (const r of VALID_ROLES) {
+    if (roles.includes(r)) return r;
+  }
+  return 'masyarakat';
+}
+
 const auth = new Hono<{ Variables: Variables }>();
 
 // POST /api/auth/login — Login with email + password
@@ -34,9 +44,7 @@ auth.post('/login', async (c) => {
     if (data.access_token) {
       // Decode user info
       const payload = JSON.parse(Buffer.from(data.access_token.split('.')[1], 'base64url').toString());
-      const role = payload.realm_access?.roles?.find((r: string) =>
-        ['super_admin', 'instansi_admin', 'petugas', 'supervisor', 'masyarakat'].includes(r)
-      ) || 'masyarakat';
+      const role = detectRole(payload.realm_access?.roles);
 
       return c.json({
         access_token: data.access_token,
@@ -98,9 +106,7 @@ auth.get('/me', async (c) => {
   try {
     const token = authHeader.substring(7);
     const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
-    const role = payload.realm_access?.roles?.find((r: string) =>
-      ['super_admin', 'instansi_admin', 'petugas', 'supervisor', 'masyarakat'].includes(r)
-    ) || 'masyarakat';
+    const role = detectRole(payload.realm_access?.roles);
 
     return c.json({
       id: payload.sub,
