@@ -148,18 +148,22 @@ export async function updateLaporanStatus(id: string, status: string, changedBy:
   const current = await sql`SELECT status FROM laporan WHERE id = ${id}`;
   const fromStatus = current[0]?.status;
 
+  // Resolve user ID from keycloak_id
+  const userResult = await sql`SELECT id FROM users WHERE keycloak_id = ${changedBy}`;
+  const userId = userResult[0]?.id || changedBy;
+
   const result = await sql`
     UPDATE laporan SET status = ${status}, updated_at = NOW(),
       ${status === 'selesai' ? sql`closed_at = NOW(),` : sql``}
       ${status === 'masuk' ? sql`first_response_at = NOW(),` : sql``}
-      petugas_id = ${changedBy}
+      petugas_id = ${userId}
     WHERE id = ${id}
     RETURNING *
   `;
 
   await sql`
     INSERT INTO status_history (laporan_id, from_status, to_status, changed_by, changed_by_nama, notes)
-    VALUES (${id}, ${fromStatus}, ${status}, ${changedBy}, ${changedByNama}, ${notes || null})
+    VALUES (${id}, ${fromStatus}, ${status}, ${userId}, ${changedByNama}, ${notes || null})
   `;
 
   return result[0];

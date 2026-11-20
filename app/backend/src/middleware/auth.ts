@@ -52,7 +52,7 @@ export async function authMiddleware(c: Context, next: Next) {
   c.set('userId', payload.sub);
   c.set('userEmail', payload.email);
   c.set('userRole', payload.realm_access?.roles?.find((r: string) => 
-    ['super_admin', 'instansi_admin', 'petugas', 'supervisor', 'masyarakat'].includes(r)
+    ['platform_superadmin', 'tenant_admin', 'tenant_staff', 'tenant_user', 'super_admin', 'instansi_admin', 'petugas', 'supervisor', 'masyarakat'].includes(r)
   ) || 'masyarakat');
   
   // Auto-sync user to database

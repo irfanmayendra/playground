@@ -10,6 +10,7 @@ import { testConnection } from './lib/db.js';
 import instansi from './routes/instansi.js';
 import laporan from './routes/laporan.js';
 import auth from './routes/auth.js';
+import admin from './routes/admin.js';
 
 // Type definitions for context variables
 type Variables = {
@@ -36,6 +37,7 @@ app.use('*', auditMiddleware);
 app.route('/api/auth', auth);
 app.route('/api/instansi', instansi);
 app.route('/api/laporan', laporan);
+app.route('/api/admin', admin);
 
 // Dashboard
 app.get('/api/dashboard/overview', async (c) => {
