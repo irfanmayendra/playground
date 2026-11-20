@@ -2,12 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 
-const STATUS_BADGES: Record<string, string> = {
-  masuk: 'badge-blue',
-  verifikasi: 'badge-orange',
-  proses: 'badge-purple',
-  selesai: 'badge-green',
-  ditutup: 'badge-red',
+const BADGES: Record<string, string> = {
+  masuk: 'badge-blue', verifikasi: 'badge-orange', proses: 'badge-purple', selesai: 'badge-green', ditutup: 'badge-red',
 };
 
 export default function LaporanList() {
@@ -17,25 +13,21 @@ export default function LaporanList() {
   });
 
   return (
-    <div className="animate-fade-up">
+    <div className="anim-up">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Pengaduan</p>
-          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Tiket Pengaduan</h2>
+          <p className="text-sm font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--text2)' }}>Pengaduan</p>
+          <h2 className="text-3xl font-bold tracking-tight">Tiket Pengaduan</h2>
         </div>
-        <Link to="/laporan/baru" className="apple-btn apple-btn-primary">
-          ➕ Buat Laporan
-        </Link>
+        <Link to="/laporan/baru" className="btn btn-primary">➕ Buat Laporan</Link>
       </div>
 
       {isLoading ? (
-        <div className="apple-card-static p-12 text-center">
-          <div className="animate-pulse text-gray-400 text-lg">Loading...</div>
-        </div>
+        <div className="card-static p-12 text-center text-gray-400 text-lg">Loading...</div>
       ) : (
-        <div className="apple-card-static overflow-hidden">
-          <div className="apple-table-wrap">
-            <table className="apple-table">
+        <div className="card-static overflow-hidden">
+          <div className="table-wrap">
+            <table className="table">
               <thead>
                 <tr>
                   <th>No. Tiket</th>
@@ -46,25 +38,19 @@ export default function LaporanList() {
                 </tr>
               </thead>
               <tbody>
-                {data?.data?.map((l: any, idx: number) => (
-                  <tr key={l.id} className="animate-fade-up" style={{ animationDelay: `${idx * 0.05}s` }}>
+                {data?.data?.map((l: any, i: number) => (
+                  <tr key={l.id} className="anim-up" style={{ animationDelay: `${i * 0.05}s` }}>
                     <td>
-                      <Link to={`/laporan/${l.id}`} className="font-mono text-sm hover:underline" style={{ color: 'var(--apple-blue)' }}>
+                      <Link to={`/laporan/${l.id}`} className="font-mono text-sm hover:underline" style={{ color: 'var(--blue)' }}>
                         {l.nomor_tiket}
                       </Link>
                     </td>
                     <td>
-                      <Link to={`/laporan/${l.id}`} className="font-medium hover:underline">
-                        {l.judul}
-                      </Link>
+                      <Link to={`/laporan/${l.id}`} className="font-medium hover:underline">{l.judul}</Link>
                     </td>
-                    <td>
-                      <span className={`apple-badge ${STATUS_BADGES[l.status] || 'badge-gray'}`}>
-                        {l.status}
-                      </span>
-                    </td>
-                    <td className="text-gray-500">{l.pelapor_nama}</td>
-                    <td className="text-gray-500 text-sm">{new Date(l.created_at).toLocaleDateString('id-ID')}</td>
+                    <td><span className={`badge ${BADGES[l.status] || 'badge-gray'}`}>{l.status}</span></td>
+                    <td style={{ color: 'var(--text2)' }}>{l.pelapor_nama}</td>
+                    <td className="text-sm" style={{ color: 'var(--text2)' }}>{new Date(l.created_at).toLocaleDateString('id-ID')}</td>
                   </tr>
                 ))}
               </tbody>
