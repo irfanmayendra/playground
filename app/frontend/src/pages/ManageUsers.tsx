@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { PlusCircle, User } from '@phosphor-icons/react';
 import { api } from '../lib/api';
 
 export default function ManageUsers() {
@@ -8,50 +9,65 @@ export default function ManageUsers() {
   });
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">👥 Manage Users</h2>
-        <button className="btn-primary">+ Tambah User</button>
+    <div className="anim-up">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--text2)' }}>Management</p>
+          <h2 className="text-3xl font-bold tracking-tight">Manage Users</h2>
+        </div>
+        <button className="btn btn-primary">
+          <PlusCircle size={20} /> Tambah User
+        </button>
       </div>
 
       {isLoading ? (
-        <div className="text-gray-500">Loading...</div>
+        <div className="card-static p-12 text-center text-gray-400 text-lg">Loading...</div>
       ) : (
-        <div className="card overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Email</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Role</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Instansi</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.data?.map((u: any) => (
-                <tr key={u.id} className="border-t hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium">{u.nama}</td>
-                  <td className="px-6 py-4 text-gray-500">{u.email}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      u.role === 'platform_superadmin' ? 'bg-red-100 text-red-700' :
-                      u.role === 'tenant_staff' ? 'bg-blue-100 text-blue-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
-                      {u.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">{u.instansi_kode || '-'}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs ${u.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {u.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
+        <div className="card-static overflow-hidden">
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Instansi</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data?.data?.map((u: any, idx: number) => (
+                  <tr key={u.id} className="anim-up" style={{ animationDelay: `${idx * 0.05}s` }}>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center text-white"
+                          style={{ background: 'linear-gradient(135deg, #0071E3, #5856D6)' }}>
+                          <User size={16} weight="bold" />
+                        </div>
+                        <span className="font-medium">{u.nama}</span>
+                      </div>
+                    </td>
+                    <td style={{ color: 'var(--text2)' }}>{u.email}</td>
+                    <td>
+                      <span className={`badge ${
+                        u.role === 'platform_superadmin' ? 'badge-red' :
+                        u.role === 'tenant_admin' ? 'badge-purple' :
+                        u.role === 'tenant_staff' ? 'badge-blue' : 'badge-gray'
+                      }`}>
+                        {u.role}
+                      </span>
+                    </td>
+                    <td>{u.instansi_kode || '—'}</td>
+                    <td>
+                      <span className={`badge ${u.is_active ? 'badge-green' : 'badge-red'}`}>
+                        {u.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
