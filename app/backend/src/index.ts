@@ -26,6 +26,22 @@ const app = new Hono<{ Variables: Variables }>();
 // ============ Global Middleware ============
 app.use('*', logger());
 app.use('*', secureHeaders());
+// ============ Security Headers ============
+app.use('*', async (c, next) => {
+  await next();
+  c.header('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");
+  c.header('X-Content-Type-Options', 'nosniff');
+  c.header('X-Frame-Options', 'DENY');
+  c.header('X-XSS-Protection', '0');
+  c.header('Referrer-Policy', 'no-referrer');
+  c.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+  c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  c.header('Cross-Origin-Opener-Policy', 'same-origin');
+  c.header('Cross-Origin-Resource-Policy', 'same-origin');
+  c.header('X-Permitted-Cross-Domain-Policies', 'none');
+  c.header('Cache-Control', 'no-store, no-cache, must-revalidate');
+});
+
 app.use('*', cors({
   origin: ['http://localhost:5173', 'https://playground.lostinvirtual.com'],
   credentials: true,
