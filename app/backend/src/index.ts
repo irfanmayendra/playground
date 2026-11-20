@@ -6,6 +6,7 @@ import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import { serve } from '@hono/node-server';
 import { auditMiddleware } from './middleware/audit.js';
+import { securityLogger } from './middleware/security-logger.js';
 import { testConnection } from './lib/db.js';
 import instansi from './routes/instansi.js';
 import laporan from './routes/laporan.js';
@@ -32,6 +33,7 @@ app.use('*', cors({
   allowHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use('*', auditMiddleware);
+app.use('*', securityLogger);
 
 // ============ Routes ============
 app.route('/api/auth', auth);
