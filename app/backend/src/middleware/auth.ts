@@ -26,6 +26,8 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
     // Accept any issuer from Keycloak (localhost or custom hostname)
     const validIssuers = [
       `${KEYCLOAK_URL}/realms/${REALM}`,
+      `https://auth.lostinvirtual.com/realms/${REALM}`,
+      `http://auth.lostinvirtual.com/realms/${REALM}`,
       `https://auth.playground.lostinvirtual.com/realms/${REALM}`,
       `http://auth.playground.lostinvirtual.com/realms/${REALM}`,
     ];
