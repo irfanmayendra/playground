@@ -12,16 +12,13 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const res = await fetch('https://api.lostinvirtual.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
       const data = await res.json();
-
       if (data.access_token) {
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('refresh_token', data.refresh_token);
@@ -38,48 +35,83 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="card p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{
+      background: 'linear-gradient(135deg, #1E3A8A 0%, #1E40AF 50%, #3B82F6 100%)'
+    }}>
+      <div className="w-full max-w-md">
+        {/* Logo & Title */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold">📋 Layanan Pengaduan</h1>
-          <p className="text-gray-500 mt-2">Multi-Instansi</p>
+          <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-4xl mx-auto mb-4 shadow-xl">
+            📋
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Layanan Pengaduan</h1>
+          <p className="text-blue-100">Multi-Instansi Pemerintah</p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">{error}</div>
-        )}
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl shadow-2xl p-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Masuk ke Akun</h2>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="email@example.com"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="••••••••"
-              required
-            />
-          </div>
-          <button type="submit" disabled={loading} className="w-full btn-primary py-3">
-            {loading ? 'Masuk...' : 'Masuk'}
-          </button>
-        </form>
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 text-sm">
+              {error}
+            </div>
+          )}
 
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Belum punya akun? <a href="#" className="text-blue-600 hover:underline">Daftar</a>
-        </p>
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="form-input"
+                placeholder="email@example.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="form-input"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <button type="submit" disabled={loading} className="btn btn-primary w-full py-3 text-base">
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Memproses...
+                </span>
+              ) : (
+                'Masuk'
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              Belum punya akun?{' '}
+              <a href="#" className="text-blue-600 font-medium hover:underline">Daftar di sini</a>
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-6">
+          <p className="text-blue-200 text-sm">
+            🔒 Sistem Pengaduan Multi-Instansi
+          </p>
+        </div>
       </div>
     </div>
   );
