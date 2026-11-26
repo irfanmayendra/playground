@@ -1,215 +1,301 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import { apiFetch } from '../lib/api';
 
-export default function LaporanCreate() {
+interface Instansi {
+  id: number;
+  nama: string;
+  kategori: string;
+}
+
+const LaporanCreate: React.FC = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState({ judul: '', deskripsi: '', kategori_id: '', instansi_id: '' });
+  const [instansiList, setInstansiList] = useState<Instansi[]>([]);
+  const [form, setForm] = useState({
+    judul: '',
+    isi: '',
+    lokasi: '',
+    instansi_id: '',
+    kategori: 'pengaduan',
+  });
   const [files, setFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<{ name: string; size: string; type: string }[]>([]);
-
-  const { data: kategoriData } = useQuery({
-    queryKey: ['kategori'],
-    queryFn: () => api.get('/api/laporan/kategori/list'),
-  });
-
-  const { data: instansiData } = useQuery({
-    queryKey: ['instansi'],
-    queryFn: () => api.get('/api/instansi'),
-  });
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsData, setGpsData] = useState<{ lat: number; lng: number; address?: string } | null>(null);
 
   useEffect(() => {
-    if (kategoriData?.data?.length && !form.instansi_id) {
-      setForm(prev => ({ ...prev, instansi_id: kategoriData.data[0].instansi_id }));
+    loadInstansi();
+  }, []);
+
+  const loadInstansi = async () => {
+    try {
+      const res = await apiFetch('/api/instansi');
+      const data = await res.json();
+      setInstansiList(data.data || []);
+    } catch (err) {
+      console.error('Failed to load instansi:', err);
     }
-  }, [kategoriData]);
+  };
 
-  const createMutation = useMutation({
-    mutationFn: async (data: any) => {
-      // Create laporan first
-      const result = await api.post('/api/laporan', data);
-      const laporanId = result.data.id;
+  const detectGPS = () => {
+    if (!navigator.geolocation) {
+      setError('Browser tidak mendukung GPS');
+      return;
+    }
 
-      // Upload files if any
-      for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        const token = localStorage.getItem('token');
-        await fetch(`https://api.lostinvirtual.com/api/laporan/${laporanId}/lampiran`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-      }
+    setGpsLoading(true);
+    setError('');
 
-      return result;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['laporan'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      navigate('/laporan');
-    },
-  });
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        setGpsData({ lat, lng });
+
+        // Reverse geocoding via OpenStreetMap
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+            { headers: { 'Accept-Language': 'id' } }
+          );
+          const data = await res.json();
+          const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+          setGpsData({ lat, lng, address });
+          setForm((f) => ({ ...f, lokasi: address }));
+        } catch {
+          const coordStr = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+          setGpsData({ lat, lng, address: coordStr });
+          setForm((f) => ({ ...f, lokasi: coordStr }));
+        }
+
+        setGpsLoading(false);
+      },
+      (err) => {
+        setGpsLoading(false);
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            setError('Izin lokasi ditolak. Izinkan akses lokasi di browser.');
+            break;
+          case err.POSITION_UNAVAILABLE:
+            setError('Lokasi tidak tersedia. Coba lagi.');
+            break;
+          case err.TIMEOUT:
+            setError('Timeout. Coba lagi.');
+            break;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || []);
-    setFiles(prev => [...prev, ...selected]);
-    setPreviews(prev => [
-      ...prev,
-      ...selected.map(f => ({
-        name: f.name,
-        size: (f.size / 1024).toFixed(1) + ' KB',
-        type: f.type,
-      })),
-    ]);
+    setFiles((prev) => [...prev, ...selected].slice(0, 5));
+
+    selected.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setPreviews((prev) => [...prev, ev.target?.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
-    setPreviews(prev => prev.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createMutation.mutate(form);
+    setLoading(true);
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('judul', form.judul);
+      formData.append('isi', form.isi);
+      formData.append('lokasi', form.lokasi);
+      formData.append('instansi_id', form.instansi_id);
+      formData.append('kategori', form.kategori);
+
+      if (gpsData) {
+        formData.append('latitude', gpsData.lat.toString());
+        formData.append('longitude', gpsData.lng.toString());
+      }
+
+      files.forEach((file) => formData.append('lampiran', file));
+
+      const res = await apiFetch('/api/laporan', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        navigate(`/laporan/${data.data.id}`);
+      } else {
+        const err = await res.json();
+        setError(err.message || 'Gagal membuat laporan');
+      }
+    } catch {
+      setError('Terjadi kesalahan. Coba lagi.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">Buat Laporan Baru</h2>
+    <div className="max-w-2xl mx-auto">
+      <h1 className="text-2xl font-bold text-white mb-6">Buat Laporan Baru</h1>
 
-      {createMutation.isError && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
-          {createMutation.error?.message || 'Gagal membuat laporan'}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6">
+          <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="card p-6 max-w-2xl">
-        {/* Judul */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Judul Laporan *</label>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-sm text-gray-400 mb-2">Judul Laporan *</label>
           <input
             type="text"
             value={form.judul}
             onChange={(e) => setForm({ ...form, judul: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Judul singkat laporan"
+            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500"
+            placeholder="Ringkasan masalah"
             required
           />
         </div>
 
-        {/* Deskripsi */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi *</label>
+        <div>
+          <label className="block text-sm text-gray-400 mb-2">Isi Laporan *</label>
           <textarea
-            value={form.deskripsi}
-            onChange={(e) => setForm({ ...form, deskripsi: e.target.value })}
-            rows={5}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Jelaskan detail laporan secara lengkap..."
+            value={form.isi}
+            onChange={(e) => setForm({ ...form, isi: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500 h-32"
+            placeholder="Jelaskan detail masalah"
             required
           />
         </div>
 
-        {/* Instansi + Kategori */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Instansi *</label>
-            <select
-              value={form.instansi_id}
-              onChange={(e) => setForm({ ...form, instansi_id: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              required
+        <div>
+          <label className="block text-sm text-gray-400 mb-2">Lokasi</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={form.lokasi}
+              onChange={(e) => setForm({ ...form, lokasi: e.target.value })}
+              className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500"
+              placeholder="Alamat kejadian"
+            />
+            <button
+              type="button"
+              onClick={detectGPS}
+              disabled={gpsLoading}
+              className="px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-colors flex items-center gap-2 whitespace-nowrap"
             >
-              <option value="">Pilih instansi</option>
-              {instansiData?.data?.map((i: any) => (
-                <option key={i.id} value={i.id}>{i.nama}</option>
-              ))}
-            </select>
+              {gpsLoading ? (
+                <span className="animate-spin">⟳</span>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="3"/>
+                  <line x1="12" y1="2" x2="12" y2="4"/>
+                  <line x1="12" y1="20" x2="12" y2="22"/>
+                  <line x1="2" y1="12" x2="4" y2="12"/>
+                  <line x1="20" y1="12" x2="22" y2="12"/>
+                </svg>
+              )}
+              GPS
+            </button>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Kategori *</label>
-            <select
-              value={form.kategori_id}
-              onChange={(e) => setForm({ ...form, kategori_id: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              required
-            >
-              <option value="">Pilih kategori</option>
-              {kategoriData?.data?.map((k: any) => (
-                <option key={k.id} value={k.id}>{k.nama} (SLA: {k.sla_hours}h)</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Upload Dokumentasi */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">📎 Dokumentasi / Bukti</label>
-          
-          {/* Upload button */}
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition"
-          >
-            <div className="text-3xl mb-2">📤</div>
-            <div className="text-sm font-medium text-gray-700">
-              Klik untuk upload file
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              Foto, Video, PDF, DOC, XLS (max 10MB per file)
-            </div>
-          </div>
-          
-          <input
-            ref={fileInputRef}
-            type="file"
-            onChange={handleFileChange}
-            className="hidden"
-            multiple
-            accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.zip"
-          />
-
-          {/* File previews */}
-          {previews.length > 0 && (
-            <div className="mt-3 space-y-2">
-              {previews.map((f, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <span className="text-2xl">
-                    {f.type.startsWith('image/') ? '🖼️' :
-                     f.type.startsWith('video/') ? '🎬' :
-                     f.type.includes('pdf') ? '📄' :
-                     f.type.includes('sheet') || f.type.includes('excel') ? '📊' : '📁'}
-                  </span>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{f.name}</div>
-                    <div className="text-xs text-gray-500">{f.size}</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeFile(idx)}
-                    className="text-red-500 hover:text-red-700 text-sm font-medium"
-                  >
-                    ✕ Hapus
-                  </button>
-                </div>
-              ))}
+          {gpsData && (
+            <div className="mt-2 flex items-center gap-2 text-xs text-green-400">
+              <span>📍</span>
+              <span>
+                Lokasi terdeteksi: {gpsData.lat.toFixed(6)}, {gpsData.lng.toFixed(6)}
+              </span>
             </div>
           )}
         </div>
 
-        {/* Submit */}
+        <div>
+          <label className="block text-sm text-gray-400 mb-2">Kategori</label>
+          <select
+            value={form.kategori}
+            onChange={(e) => setForm({ ...form, kategori: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500"
+          >
+            <option value="pengaduan">Pengaduan</option>
+            <option value="laporan">Laporan</option>
+            <option value="saran">Saran</option>
+            <option value="permohonan">Permohonan</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm text-gray-400 mb-2">Instansi Tujuan *</label>
+          <select
+            value={form.instansi_id}
+            onChange={(e) => setForm({ ...form, instansi_id: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500"
+            required
+          >
+            <option value="">-- Pilih Instansi --</option>
+            {instansiList.map((inst) => (
+              <option key={inst.id} value={inst.id}>
+                {inst.nama}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm text-gray-400 mb-2">Lampiran (maks 5 file)</label>
+          <div className="space-y-3">
+            {previews.map((preview, i) => (
+              <div key={i} className="flex items-center gap-3 bg-white/5 rounded-xl p-3">
+                <img src={preview} alt="" className="w-16 h-16 object-cover rounded-lg" />
+                <div className="flex-1">
+                  <p className="text-white text-sm truncate">{files[i]?.name}</p>
+                  <p className="text-gray-500 text-xs">{(files[i]?.size / 1024).toFixed(0)} KB</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeFile(i)}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <label className="block w-full p-6 rounded-xl border-2 border-dashed border-white/10 text-center cursor-pointer hover:border-blue-500/50 transition-colors">
+              <input
+                type="file"
+                multiple
+                accept="image/*,.pdf,.doc,.docx"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <p className="text-gray-400">+ Tambah Lampiran</p>
+            </label>
+          </div>
+        </div>
+
         <button
           type="submit"
-          disabled={createMutation.isPending}
-          className="btn-primary px-8 py-3"
+          disabled={loading}
+          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors disabled:opacity-50"
         >
-          {createMutation.isPending ? 'Mengirim...' : `📨 Kirim Laporan${files.length > 0 ? ` (${files.length} file)` : ''}`}
+          {loading ? 'Mengirim...' : 'Kirim Laporan'}
         </button>
       </form>
     </div>
   );
-}
+};
+
+export default LaporanCreate;

@@ -143,6 +143,33 @@ export default function LaporanDetail() {
           {/* Info */}
           <div className="card p-6 mb-6">
             <h2 className="text-xl font-bold mb-3">{l.judul}</h2>
+            {(l.latitude || l.lokasi) && (
+              <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                <div className="flex items-center gap-2 text-sm text-blue-700">
+                  <span>📍</span>
+                  <span>{l.lokasi || 'Lokasi terlampir'}</span>
+                </div>
+                {l.latitude && l.longitude && (
+                  <div className="mt-2">
+                    <a
+                      href={`https://www.google.com/maps?q=${l.latitude},${l.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      Lihat di Google Maps
+                    </a>
+                    <span className="ml-2 text-xs text-blue-500">
+                      {parseFloat(l.latitude).toFixed(6)}, {parseFloat(l.longitude).toFixed(6)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
             <p className="text-gray-600 mb-4">{l.deskripsi}</p>
             <div className="grid grid-cols-4 gap-4 text-sm">
               <div><div className="text-gray-500">Kategori</div><div className="font-medium">{l.kategori_nama}</div></div>
