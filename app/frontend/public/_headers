@@ -1,7 +1,7 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://playground.lostinvirtual.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://playground.lostinvirtual.com; connect-src 'self' https://api.lostinvirtual.com https://auth.lostinvirtual.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self';
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://playground.lostinvirtual.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://playground.lostinvirtual.com https://*.tile.openstreetmap.org https://nominatim.openstreetmap.org; connect-src 'self' https://api.lostinvirtual.com https://auth.lostinvirtual.com https://nominatim.openstreetmap.org; frame-ancestors 'self'; base-uri 'self'; form-action 'self';
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self)
   Strict-Transport-Security: max-age=31536000; includeSubDomains

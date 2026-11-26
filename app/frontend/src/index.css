@@ -1,0 +1,59 @@
+
+/* ===== HIGH CONTRAST FORM FIXES ===== */
+input, textarea, select {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+  opacity: 1 !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: #3b82f6 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+
+select {
+  color: #ffffff !important;
+  background-color: rgba(30, 41, 59, 0.95) !important;
+}
+
+select option {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  padding: 10px !important;
+}
+
+/* Fix dark dropdown on all browsers */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px !important;
+}
+
+/* Fix text readability on dark backgrounds */
+p, span, label, div {
+  color: inherit;
+}
+
+.text-gray-400, .text-gray-500 {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.text-gray-300 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.text-gray-200 {
+  color: rgba(255, 255, 255, 0.9) !important;
+}

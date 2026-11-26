@@ -7,8 +7,8 @@ export default {
       "script-src 'self' 'unsafe-inline' https://playground.lostinvirtual.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://playground.lostinvirtual.com",
-      "connect-src 'self' https://api.lostinvirtual.com https://auth.lostinvirtual.com",
+      "img-src 'self' data: blob: https://playground.lostinvirtual.com https://*.tile.openstreetmap.org",
+      "connect-src 'self' https://api.lostinvirtual.com https://auth.lostinvirtual.com https://nominatim.openstreetmap.org",
       "frame-src 'self' https://auth.lostinvirtual.com",
       "frame-ancestors 'self'",
       "base-uri 'self'",
@@ -21,63 +21,28 @@ export default {
       'Content-Security-Policy': CSP,
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'SAMEORIGIN',
-      'X-XSS-Protection': '0',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
-      'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
-      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Resource-Policy': 'same-origin',
-      'X-Permitted-Cross-Domain-Policies': 'none'
+      'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self), payment=(), usb=()',
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     };
 
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 204,
-        headers: Object.assign({}, securityHeaders, {
-          'Access-Control-Allow-Origin': 'https://playground.lostinvirtual.com',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          'Access-Control-Max-Age': '86400'
-        })
-      });
+    // Service Worker & manifest: no CSP restrictions
+    if (url.pathname === '/sw.js' || url.pathname === '/manifest.json') {
+      const res = await env.ASSETS.fetch(request);
+      const newRes = new Response(res.body, res);
+      newRes.headers.set('Content-Type', url.pathname === '/sw.js' ? 'application/javascript' : 'application/json');
+      newRes.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      Object.entries(securityHeaders).forEach(([k, v]) => newRes.headers.set(k, v));
+      return newRes;
     }
 
-    if (url.pathname.startsWith('/api/') || url.pathname === '/health') {
-      try {
-        const apiUrl = 'http://43.134.5.138:8787' + url.pathname + url.search;
-        const headers = new Headers();
-        for (const [key, value] of request.headers) {
-          var k = key.toLowerCase();
-          if (!['host','cf-connecting-ip','cf-ipcountry','cf-ray','cf-visitor','cdn-loop','x-forwarded-for','x-forwarded-proto','x-real-ip','content-length'].includes(k)) {
-            headers.set(key, value);
-          }
-        }
+    const response = await env.ASSETS.fetch(request);
+    const newResponse = new Response(response.body, response);
 
-        const resp = await fetch(apiUrl, {
-          method: request.method,
-          headers: headers,
-          body: (request.method !== 'GET' && request.method !== 'HEAD') ? request.body : undefined
-        });
+    Object.entries(securityHeaders).forEach(([k, v]) => {
+      newResponse.headers.set(k, v);
+    });
 
-        const newResp = new Response(resp.body, resp);
-        for (const [key, value] of Object.entries(securityHeaders)) {
-          newResp.headers.set(key, value);
-        }
-        newResp.headers.set('Access-Control-Allow-Origin', 'https://playground.lostinvirtual.com');
-        return newResp;
-      } catch (err) {
-        return new Response(JSON.stringify({ error: 'Backend unavailable' }), {
-          status: 502,
-          headers: Object.assign({ 'Content-Type': 'application/json' }, securityHeaders)
-        });
-      }
-    }
-
-    const resp = await env.ASSETS.fetch(request);
-    const newResp = new Response(resp.body, resp);
-    for (const [key, value] of Object.entries(securityHeaders)) {
-      newResp.headers.set(key, value);
-    }
-    return newResp;
-  }
-}
+    return newResponse;
+  },
+};
