@@ -394,57 +394,45 @@ select {
 textarea {
   border-radius: var(--radius-sm) !important;
 }
-
-/* ===== HIGH CONTRAST FORM FIXES ===== */
-input, textarea, select {
-  color: #ffffff !important;
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
+/* ===== FORM CONTRAST FIX (Light Theme) ===== */
+input, textarea {
+  color: var(--text) !important;
+  background: var(--gray) !important;
+  border: 1.5px solid var(--gray2) !important;
 }
 
 input::placeholder, textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: var(--text2) !important;
   opacity: 1 !important;
 }
 
-input:focus, textarea:focus, select:focus {
-  color: #ffffff !important;
-  background-color: rgba(255, 255, 255, 0.12) !important;
-  border-color: #3b82f6 !important;
+input:focus, textarea:focus {
+  color: var(--text) !important;
+  background: #fff !important;
+  border-color: var(--blue) !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(0,113,227,0.15) !important;
 }
 
 select {
-  color: #ffffff !important;
-  background-color: rgba(30, 41, 59, 0.95) !important;
+  color: var(--text) !important;
+  background: var(--gray) !important;
+  border: 1.5px solid var(--gray2) !important;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2386868B' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
   padding-right: 36px !important;
 }
 
+select:focus {
+  border-color: var(--blue) !important;
+  box-shadow: 0 0 0 3px rgba(0,113,227,0.15) !important;
+}
+
 select option {
-  background-color: #1e293b !important;
-  color: #ffffff !important;
-  padding: 10px !important;
-}
-
-.text-gray-400, .text-gray-500 {
-  color: rgba(255, 255, 255, 0.65) !important;
-}
-
-.text-gray-300 {
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.text-gray-200 {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-label {
-  color: rgba(255, 255, 255, 0.75) !important;
+  background: #fff !important;
+  color: var(--text) !important;
 }

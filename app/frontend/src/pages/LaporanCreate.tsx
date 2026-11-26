@@ -42,8 +42,7 @@ const LaporanCreate: React.FC = () => {
 
   const loadInstansi = async () => {
     try {
-      const res = await api.get('/api/instansi');
-      const data = await res.json();
+      const data = await api.get('/api/instansi');
       setInstansiList(data.data || []);
     } catch (err) {
       console.error('Failed to load instansi:', err);
