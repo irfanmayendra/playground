@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { PlusCircle, ArrowLeft } from '@phosphor-icons/react';
+import { PlusCircle } from '@phosphor-icons/react';
 import { api } from '../lib/api';
 
 const BADGES: Record<string, string> = {

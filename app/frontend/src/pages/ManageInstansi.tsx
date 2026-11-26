@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { PlusCircle, X, Buildings, FloppyDisk } from '@phosphor-icons/react';
+import { PlusCircle, X, FloppyDisk } from '@phosphor-icons/react';
 import { api } from '../lib/api';
 
 export default function ManageInstansi() {

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
   SquaresFour, ArrowDown, Spinner, CheckCircle, Clock, PlusCircle, ListChecks,
-  Buildings, ChatCircle, Paperclip, ChartLineUp, ArrowRight,
+  Buildings, ChatCircle, Paperclip, ChartLineUp,
 } from '@phosphor-icons/react';
 import { api } from '../lib/api';
 

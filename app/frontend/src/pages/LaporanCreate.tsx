@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../lib/api';
+import { api } from '../lib/api';
+
+const BASE_URL = 'https://api.lostinvirtual.com';
+
+const uploadFormData = async (path: string, formData: FormData) => {
+  const token = localStorage.getItem('token');
+  return fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+};
 
 interface Instansi {
   id: number;
@@ -31,7 +42,7 @@ const LaporanCreate: React.FC = () => {
 
   const loadInstansi = async () => {
     try {
-      const res = await apiFetch('/api/instansi');
+      const res = await api.get('/api/instansi');
       const data = await res.json();
       setInstansiList(data.data || []);
     } catch (err) {
@@ -129,10 +140,7 @@ const LaporanCreate: React.FC = () => {
 
       files.forEach((file) => formData.append('lampiran', file));
 
-      const res = await apiFetch('/api/laporan', {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await uploadFormData('/api/laporan', formData);
 
       if (res.ok) {
         const data = await res.json();

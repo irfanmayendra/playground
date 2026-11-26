@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   SquaresFour, Buildings, Bank, ListChecks, PlusCircle, Users, ClipboardText,
-  SignOut, List, Tray, User, ArrowRight, X, ListBullets,
+  SignOut, List, Tray, User, ListBullets,
 } from '@phosphor-icons/react';
 
 const ROLE_MENUS: Record<string, { label: string; path: string; icon: React.ReactNode }[]> = {
