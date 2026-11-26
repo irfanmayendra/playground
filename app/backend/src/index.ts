@@ -12,6 +12,7 @@ import instansi from './routes/instansi.js';
 import laporan from './routes/laporan.js';
 import auth from './routes/auth.js';
 import admin from './routes/admin.js';
+import register from './routes/register.js';
 
 // Type definitions for context variables
 type Variables = {
@@ -53,6 +54,7 @@ app.use('*', securityLogger);
 
 // ============ Routes ============
 app.route('/api/auth', auth);
+app.route('/api/auth', register);
 app.route('/api/instansi', instansi);
 app.route('/api/laporan', laporan);
 app.route('/api/admin', admin);

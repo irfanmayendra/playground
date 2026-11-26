@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ListBullets, Envelope, Lock, ArrowRight, ShieldCheck } from '@phosphor-icons/react';
 
 export default function Login() {
@@ -109,7 +109,7 @@ export default function Login() {
 
           <div className="mt-8 text-center">
             <p className="text-sm" style={{ color: 'var(--text2)' }}>
-              Belum punya akun? <a href="#" className="font-semibold" style={{ color: 'var(--blue)' }}>Daftar</a>
+              Belum punya akun? <Link to="/register" className="font-semibold" style={{ color: 'var(--blue)' }}>Daftar</Link>
             </p>
           </div>
         </div>

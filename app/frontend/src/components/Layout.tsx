@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   SquaresFour, Buildings, Bank, ListChecks, PlusCircle, Users, ClipboardText,
-  SignOut, List, Tray, User, ListBullets,
+  SignOut, List, Tray, User, ListBullets, Clock,
 } from '@phosphor-icons/react';
 
 const ROLE_MENUS: Record<string, { label: string; path: string; icon: React.ReactNode }[]> = {
@@ -13,6 +13,7 @@ const ROLE_MENUS: Record<string, { label: string; path: string; icon: React.Reac
     { label: 'Semua Laporan', path: '/laporan', icon: <ListChecks size={20} /> },
     { label: 'Buat Laporan', path: '/laporan/baru', icon: <PlusCircle size={20} /> },
     { label: 'Users', path: '/users', icon: <Users size={20} /> },
+    { label: 'Pending', path: '/pending-users', icon: <Clock size={20} /> },
     { label: 'Audit Log', path: '/audit', icon: <ClipboardText size={20} /> },
   ],
   tenant_admin: [
